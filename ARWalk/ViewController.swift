@@ -9,10 +9,15 @@
 import UIKit
 import SceneKit
 import ARKit
+import CoreLocation
+import MapKit
 
-class ViewController: UIViewController, ARSCNViewDelegate {
+class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
 
     @IBOutlet var sceneView: ARSCNView!
+    
+    var steps: [MKRoute.Step] = []
+    var destinationLocation: CLLocationCoordinate2D!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -23,11 +28,18 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         // Show statistics such as fps and timing information
         sceneView.showsStatistics = true
         
-        // Create a new scene
-        let scene = SCNScene(named: "art.scnassets/ship.scn")!
+        var navService = NavigationService()
         
-        // Set the scene to the view
-        sceneView.scene = scene
+        self.destinationLocation = CLLocationCoordinate2D(latitude: 40.737512, longitude: -73.980767)
+        var request = MKDirections.Request()
+        
+        if destinationLocation != nil {
+            navService.getDirections(destinationLocation: destinationLocation, request: request) { steps in
+                for step in steps {
+                    self.steps.append(step)
+                }
+            }
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -73,3 +85,4 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         
     }
 }
+
